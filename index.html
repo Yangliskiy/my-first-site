@@ -11,15 +11,64 @@
 
         body {
             font-family: 'Orbitron', sans-serif;
-            background-color: #1a1a1a; /* Lighter fallback color */
+            background-color: #000;
             color: #ffffff;
             overflow: hidden;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            transition: background-image 1s ease-in-out; 
+            transition: background 1s ease-in-out;
         }
 
-        /* Shake Animation */
+        /* --- BACKGROUNDS GENERATED VIA CSS (NO IMAGES) --- */
+        
+        /* Level 0: Basement (Dark Green Toxic) */
+        .bg-lvl-0 {
+            background: radial-gradient(circle at 50% 30%, #14532d 0%, #020617 70%);
+        }
+        
+        /* Level 1: Garage (Industrial Blue) */
+        .bg-lvl-1 {
+            background: radial-gradient(circle at 50% 30%, #1e3a8a 0%, #020617 70%);
+        }
+
+        /* Level 2: Factory (Rust Orange) */
+        .bg-lvl-2 {
+            background: radial-gradient(circle at 50% 30%, #7c2d12 0%, #020617 70%);
+        }
+
+        /* Level 3: High-Tech (Cyan Neon) */
+        .bg-lvl-3 {
+            background: radial-gradient(circle at 50% 30%, #0891b2 0%, #020617 70%);
+        }
+
+        /* Level 4: Crystal (Cosmic Purple) */
+        .bg-lvl-4 {
+            background: radial-gradient(circle at 50% 30%, #7e22ce 0%, #020617 70%);
+        }
+
+        /* Cyber Grid Overlay Pattern */
+        .cyber-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Vignette for depth */
+        .vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, transparent 0%, #000000 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* --- ANIMATIONS --- */
+
         @keyframes shake {
             0% { transform: translate(1px, 1px) rotate(0deg); }
             10% { transform: translate(-1px, -2px) rotate(-1deg); }
@@ -33,32 +82,22 @@
             90% { transform: translate(1px, 2px) rotate(0deg); }
             100% { transform: translate(1px, -2px) rotate(-1deg); }
         }
+        .shake-screen { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 
-        .shake-screen {
-            animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        /* Flask Pulse Animation */
         @keyframes liquid-pulse {
             0%, 100% { filter: drop-shadow(0 0 15px #22c55e); transform: scale(1); }
             50% { filter: drop-shadow(0 0 30px #4ade80); transform: scale(1.02); }
         }
-
         .flask-btn {
             transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: liquid-pulse 3s infinite;
         }
+        .flask-btn:active { transform: scale(0.90) rotate(5deg); }
 
-        .flask-btn:active {
-            transform: scale(0.90) rotate(5deg);
-        }
-
-        /* Floating Number Animation */
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-120px) scale(1.5) rotate(10deg); }
         }
-
         .floating-text {
             position: absolute;
             color: #4ade80; 
@@ -70,7 +109,6 @@
             z-index: 50;
             font-family: monospace;
         }
-
         .crit-text {
             color: #ef4444; 
             font-size: 42px;
@@ -78,27 +116,21 @@
             z-index: 60;
         }
 
-        /* Glassmorphism UI */
         .glass-panel {
-            background: rgba(20, 20, 20, 0.7);
-            backdrop-filter: blur(8px); /* Reduced blur slightly for performance */
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(74, 222, 128, 0.2);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .no-select {
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        .no-select { user-select: none; -webkit-user-select: none; }
 
         .shop-grid {
             scrollbar-width: none; 
             -ms-overflow-style: none;  
         }
-        .shop-grid::-webkit-scrollbar { 
-            display: none; 
-        }
+        .shop-grid::-webkit-scrollbar { display: none; }
 
         .tab-active {
             background-color: rgba(34, 197, 94, 0.2);
@@ -111,12 +143,11 @@
         }
     </style>
 </head>
-<!-- Added default background image here and reduced overlay opacity -->
-<body id="gameBody" class="h-screen w-full flex flex-col justify-between items-center p-4 bg-cover bg-center transition-all duration-1000" style="background-image: url('https://images.unsplash.com/photo-1590422749847-75f8f0412674?q=80&w=2070&auto=format&fit=crop');">
+<body id="gameBody" class="h-screen w-full flex flex-col justify-between items-center p-4 bg-lvl-0">
     
-    <!-- Dark overlay reduced to 50% opacity (bg-black/50) -->
-    <div class="absolute inset-0 bg-black/50 z-0 transition-opacity duration-1000" id="bgOverlay"></div>
-    <div class="absolute inset-0 bg-green-900/10 z-0 pointer-events-none mix-blend-overlay"></div>
+    <!-- Background Effects -->
+    <div class="cyber-grid"></div>
+    <div class="vignette"></div>
 
     <!-- MAIN APP CONTENT -->
     <div class="relative z-10 w-full max-w-md flex flex-col h-full justify-between pb-2">
@@ -152,7 +183,7 @@
                         </linearGradient>
                     </defs>
                     <path d="M75,20 L125,20 L125,70 L160,130 C170,145 170,180 145,180 L55,180 C30,180 30,145 40,130 L75,70 Z" 
-                          fill="rgba(255,255,255,0.1)" stroke="#a3e635" stroke-width="4" stroke-linejoin="round"/>
+                          fill="rgba(255,255,255,0.05)" stroke="#a3e635" stroke-width="4" stroke-linejoin="round"/>
                     <path d="M80,80 L120,80 L148,130 C155,142 155,170 140,170 L60,170 C45,170 45,142 52,130 Z" 
                           fill="url(#liquidGrad)" class="opacity-90"/>
                     <circle cx="100" cy="150" r="5" fill="#fff" opacity="0.4" />
@@ -189,47 +220,68 @@
             <!-- Content Area -->
             <div class="flex-1 overflow-y-auto shop-grid p-2 relative">
                 <!-- UPGRADES TAB -->
-                <div id="contentUpgrades" class="grid grid-cols-2 gap-2">
-                    <button onclick="buyUpgrade('multitap')" class="group relative overflow-hidden bg-black/40 hover:bg-green-900/30 active:bg-green-900/50 border border-green-800 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[10px] text-green-500 uppercase font-bold tracking-widest">Синтез</div>
-                            <div class="text-xl opacity-50">⚗️</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-white text-xs">Ур. <span id="lvlMultitap" class="text-green-300">1</span></div>
-                            <div class="text-gray-400 text-[10px] font-mono mt-1" id="costMultitap">100 мг</div>
-                        </div>
-                    </button>
-                    <button onclick="buyUpgrade('energy')" class="group relative overflow-hidden bg-black/40 hover:bg-purple-900/30 active:bg-purple-900/50 border border-purple-900 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[10px] text-purple-400 uppercase font-bold tracking-widest">Емкость</div>
-                            <div class="text-xl opacity-50">🔋</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-white text-xs">Ур. <span id="lvlEnergy" class="text-purple-300">1</span></div>
-                            <div class="text-gray-400 text-[10px] font-mono mt-1" id="costEnergy">100 мг</div>
+                <div id="contentUpgrades" class="space-y-2">
+                    
+                    <!-- NEW: LOCATION UPGRADE BUTTON -->
+                    <button onclick="buyUpgrade('location')" id="btnLocation" class="w-full group relative overflow-hidden bg-gradient-to-r from-green-900/60 to-blue-900/60 border border-white/20 hover:border-white/50 active:scale-95 rounded-xl p-3 text-left transition-all shadow-lg mb-4">
+                        <div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition"></div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="text-3xl">🏗️</div>
+                                <div>
+                                    <div class="text-xs text-white uppercase font-bold tracking-widest">Переезд</div>
+                                    <div class="text-[10px] text-gray-300 font-mono">Сменить Локацию (Доход x2)</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-mono text-white text-xs font-bold" id="nextLocName">Гараж</div>
+                                <div class="text-green-400 text-xs font-mono mt-1 font-bold" id="costLocation">5,000 мг</div>
+                            </div>
                         </div>
                     </button>
-                    <button onclick="buyUpgrade('recharge')" class="group relative overflow-hidden bg-black/40 hover:bg-blue-900/30 active:bg-blue-900/50 border border-blue-900 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[10px] text-blue-400 uppercase font-bold tracking-widest">Охлаждение</div>
-                            <div class="text-xl opacity-50">❄️</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-white text-xs">Ур. <span id="lvlRecharge" class="text-blue-300">1</span></div>
-                            <div class="text-gray-400 text-[10px] font-mono mt-1" id="costRecharge">100 мг</div>
-                        </div>
-                    </button>
-                    <button onclick="buyUpgrade('autobot')" class="group relative overflow-hidden bg-black/40 hover:bg-yellow-900/30 active:bg-yellow-900/50 border border-yellow-700 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
-                        <div class="flex justify-between items-start">
-                            <div class="text-[10px] text-yellow-500 uppercase font-bold tracking-widest">Авто-Варка</div>
-                            <div class="text-xl opacity-50">🤖</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-white text-xs">Ур. <span id="lvlAutobot" class="text-yellow-300">0</span></div>
-                            <div class="text-gray-400 text-[10px] font-mono mt-1" id="costAutobot">500 мг</div>
-                        </div>
-                    </button>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="buyUpgrade('multitap')" class="group relative overflow-hidden bg-black/40 hover:bg-green-900/30 active:bg-green-900/50 border border-green-800 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <div class="text-[10px] text-green-500 uppercase font-bold tracking-widest">Синтез</div>
+                                <div class="text-xl opacity-50">⚗️</div>
+                            </div>
+                            <div>
+                                <div class="font-mono text-white text-xs">Ур. <span id="lvlMultitap" class="text-green-300">1</span></div>
+                                <div class="text-gray-400 text-[10px] font-mono mt-1" id="costMultitap">100 мг</div>
+                            </div>
+                        </button>
+                        <button onclick="buyUpgrade('energy')" class="group relative overflow-hidden bg-black/40 hover:bg-purple-900/30 active:bg-purple-900/50 border border-purple-900 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <div class="text-[10px] text-purple-400 uppercase font-bold tracking-widest">Емкость</div>
+                                <div class="text-xl opacity-50">🔋</div>
+                            </div>
+                            <div>
+                                <div class="font-mono text-white text-xs">Ур. <span id="lvlEnergy" class="text-purple-300">1</span></div>
+                                <div class="text-gray-400 text-[10px] font-mono mt-1" id="costEnergy">100 мг</div>
+                            </div>
+                        </button>
+                        <button onclick="buyUpgrade('recharge')" class="group relative overflow-hidden bg-black/40 hover:bg-blue-900/30 active:bg-blue-900/50 border border-blue-900 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <div class="text-[10px] text-blue-400 uppercase font-bold tracking-widest">Охлаждение</div>
+                                <div class="text-xl opacity-50">❄️</div>
+                            </div>
+                            <div>
+                                <div class="font-mono text-white text-xs">Ур. <span id="lvlRecharge" class="text-blue-300">1</span></div>
+                                <div class="text-gray-400 text-[10px] font-mono mt-1" id="costRecharge">100 мг</div>
+                            </div>
+                        </button>
+                        <button onclick="buyUpgrade('autobot')" class="group relative overflow-hidden bg-black/40 hover:bg-yellow-900/30 active:bg-yellow-900/50 border border-yellow-700 rounded-lg p-2 text-left transition-all h-24 flex flex-col justify-between">
+                            <div class="flex justify-between items-start">
+                                <div class="text-[10px] text-yellow-500 uppercase font-bold tracking-widest">Авто-Варка</div>
+                                <div class="text-xl opacity-50">🤖</div>
+                            </div>
+                            <div>
+                                <div class="font-mono text-white text-xs">Ур. <span id="lvlAutobot" class="text-yellow-300">0</span></div>
+                                <div class="text-gray-400 text-[10px] font-mono mt-1" id="costAutobot">500 мг</div>
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- BLACK MARKET TAB -->
@@ -295,6 +347,7 @@
             energyLevel: 1,
             rechargeLevel: 1,
             autobotLevel: 0,
+            locationLevel: 0, // 0 to 4
             hasCrit: false,
             multiplier: 1, 
             items: {
@@ -305,25 +358,20 @@
             lastSaveTime: Date.now()
         };
 
+        const LocationNames = ["Подвал", "Гараж", "Завод", "Лаборатория", "Космос"];
+
         const Upgrades = {
             multitap: { baseCost: 100, costMultiplier: 2.0, powerBase: 1 },
             energy: { baseCost: 100, costMultiplier: 1.5, powerBase: 500 },
             recharge: { baseCost: 300, costMultiplier: 1.8, powerBase: 1 }, 
-            autobot: { baseCost: 500, costMultiplier: 2.5, powerBase: 1 } 
+            autobot: { baseCost: 500, costMultiplier: 2.5, powerBase: 1 },
+            location: { baseCost: 5000, costMultiplier: 5.0, powerBase: 1 } // Expensive!
         };
 
         const SpecialItems = {
             unstableIsotope: { cost: 2500, name: "Нестабильный Изотоп" },
             blueCrystal: { cost: 10000, name: "Синий Кристалл" },
             darkMatter: { cost: 100000, name: "Темная Материя" }
-        };
-
-        const Backgrounds = {
-            0: 'https://images.unsplash.com/photo-1590422749847-75f8f0412674?q=80&w=2070&auto=format&fit=crop', // Basement/Dark
-            1: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop', // Garage/Tools
-            2: 'https://images.unsplash.com/photo-1516937941348-c09645f31e3d?q=80&w=2070&auto=format&fit=crop', // Industrial
-            3: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=2025&auto=format&fit=crop', // High-tech Lab
-            4: 'https://images.unsplash.com/photo-1535136029863-4a3813f41120?q=80&w=2070&auto=format&fit=crop'  // Sci-fi/Crystal
         };
 
         let currentBgLevel = -1;
@@ -340,15 +388,15 @@
         // --- Core Logic ---
 
         function loadGame() {
-            const saved = localStorage.getItem('neonLabSave_v6'); // Bump version to force fresh bg load logic if needed
+            const saved = localStorage.getItem('neonLabSave_v8'); 
             if (saved) {
                 const parsed = JSON.parse(saved);
                 Object.assign(GameState, parsed);
                 
-                let mult = 1;
-                if(GameState.items.blueCrystal) mult *= 2;
-                if(GameState.items.darkMatter) mult *= 5;
-                GameState.multiplier = mult;
+                // Ensure locationLevel exists (migration)
+                if(typeof GameState.locationLevel === 'undefined') GameState.locationLevel = 0;
+
+                recalcMultiplier();
 
                 const now = Date.now();
                 const secondsPassed = (now - GameState.lastSaveTime) / 1000;
@@ -368,9 +416,29 @@
             updateUI();
         }
 
+        function recalcMultiplier() {
+            let mult = 1;
+            // Shop items
+            if(GameState.items.blueCrystal) mult *= 2;
+            if(GameState.items.darkMatter) mult *= 5;
+            
+            // Location Bonus (x2 per level, starting from level 1. Level 0 is x1 base)
+            // Example: Lvl 0 = x1, Lvl 1 = x2, Lvl 2 = x4? Or just linear?
+            // Let's make it impactful: x2 for every level above 0.
+            // Level 0: x1
+            // Level 1: x2
+            // Level 2: x4
+            // Level 3: x8
+            if (GameState.locationLevel > 0) {
+                mult *= Math.pow(2, GameState.locationLevel);
+            }
+
+            GameState.multiplier = mult;
+        }
+
         function saveGame() {
             GameState.lastSaveTime = Date.now();
-            localStorage.setItem('neonLabSave_v6', JSON.stringify(GameState));
+            localStorage.setItem('neonLabSave_v8', JSON.stringify(GameState));
         }
 
         function getClickPower() {
@@ -383,6 +451,7 @@
             if (type === 'energy') level = GameState.energyLevel;
             if (type === 'recharge') level = GameState.rechargeLevel;
             if (type === 'autobot') level = GameState.autobotLevel + 1;
+            if (type === 'location') level = GameState.locationLevel + 1;
 
             const config = Upgrades[type];
             return Math.floor(config.baseCost * Math.pow(config.costMultiplier, level - 1));
@@ -486,6 +555,12 @@
 
         window.buyUpgrade = function(type) {
             const cost = getUpgradeCost(type);
+            
+            if (type === 'location' && GameState.locationLevel >= 4) {
+                 showToast("МАКСИМАЛЬНЫЙ УРОВЕНЬ!");
+                 return;
+            }
+
             if (GameState.balance >= cost) {
                 GameState.balance -= cost;
                 
@@ -500,6 +575,11 @@
                     GameState.energyRechargeRate += Upgrades.recharge.powerBase;
                 }
                 else if (type === 'autobot') GameState.autobotLevel++;
+                else if (type === 'location') {
+                    GameState.locationLevel++;
+                    recalcMultiplier();
+                    showToast(`ПЕРЕЕЗД: ${LocationNames[GameState.locationLevel]}`);
+                }
                 
                 tg.HapticFeedback.notificationOccurred('success');
                 saveGame();
@@ -516,9 +596,7 @@
             if (GameState.balance >= item.cost) {
                 GameState.balance -= item.cost;
                 GameState.items[itemKey] = true;
-
-                if (itemKey === 'blueCrystal') GameState.multiplier *= 2;
-                if (itemKey === 'darkMatter') GameState.multiplier *= 5;
+                recalcMultiplier();
 
                 tg.HapticFeedback.notificationOccurred('success');
                 showToast("ВЕЩЕСТВО СИНТЕЗИРОВАНО!");
@@ -572,24 +650,31 @@
             document.getElementById('lvlAutobot').innerText = GameState.autobotLevel;
             document.getElementById('costAutobot').innerText = getUpgradeCost('autobot').toLocaleString() + ' мг';
 
+            // Location Button Update
+            const locBtn = document.getElementById('btnLocation');
+            if (GameState.locationLevel >= 4) {
+                document.getElementById('nextLocName').innerText = "МАКС УРОВЕНЬ";
+                document.getElementById('costLocation').innerText = "---";
+                locBtn.style.opacity = 0.5;
+            } else {
+                document.getElementById('nextLocName').innerText = LocationNames[GameState.locationLevel + 1];
+                document.getElementById('costLocation').innerText = getUpgradeCost('location').toLocaleString() + ' мг';
+                locBtn.style.opacity = 1;
+            }
+
             updateSpecialItemUI('unstableIsotope', 'costIsotope', 'statusIsotope');
             updateSpecialItemUI('blueCrystal', 'costCrystal', 'statusCrystal');
             updateSpecialItemUI('darkMatter', 'costDarkMatter', 'statusDarkMatter');
 
-            let bgIndex = 0;
-            let lvlName = "Подвал";
+            // Location Text & Background
+            const currentName = LocationNames[GameState.locationLevel] || "Unknown";
+            document.getElementById('levelDisplay').innerText = currentName;
             
-            if(GameState.balance > 5000) { lvlName = "Гаражная Лаба"; bgIndex = 1; }
-            if(GameState.balance > 25000) { lvlName = "Промзона"; bgIndex = 2; }
-            if(GameState.balance > 100000) { lvlName = "Синдикат"; bgIndex = 3; }
-            if(GameState.balance > 1000000) { lvlName = "Хайзенберг"; bgIndex = 4; }
-            
-            document.getElementById('levelDisplay').innerText = lvlName;
-            
-            if (bgIndex !== currentBgLevel) {
-                currentBgLevel = bgIndex;
+            if (GameState.locationLevel !== currentBgLevel) {
                 const body = document.getElementById('gameBody');
-                body.style.backgroundImage = `url('${Backgrounds[bgIndex]}')`;
+                if(currentBgLevel >= 0) body.classList.remove(`bg-lvl-${currentBgLevel}`);
+                body.classList.add(`bg-lvl-${GameState.locationLevel}`);
+                currentBgLevel = GameState.locationLevel;
             }
         }
 
