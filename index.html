@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Tap</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #050505;
+            color: #ffffff;
+            overflow: hidden; /* Prevent scrolling */
+            touch-action: manipulation; /* Improve touch response */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Coin Pulse Animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px #a855f7, 0 0 40px #a855f7 inset; }
+            50% { box-shadow: 0 0 40px #d8b4fe, 0 0 60px #d8b4fe inset; }
+        }
+
+        .coin-btn {
+            background: radial-gradient(circle at 30% 30%, #4c1d95, #000);
+            box-shadow: 0 0 20px #a855f7, 0 0 40px #a855f7 inset;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse-glow 3s infinite;
+        }
+
+        .coin-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Floating Number Animation */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+        }
+
+        .floating-text {
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            font-size: 24px;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 0 10px #a855f7;
+            z-index: 50;
+        }
+
+        /* Glassmorphism UI */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Prevent selection */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col justify-between items-center p-4 bg-[url('https://images.unsplash.com/photo-1534224039826-c7a0eda0e6b3?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+    
+    <!-- Dark overlay for background readability -->
+    <div class="absolute inset-0 bg-black/80 z-0"></div>
+
+    <!-- MAIN APP CONTENT -->
+    <div class="relative z-10 w-full max-w-md flex flex-col h-full justify-between pb-4">
+        
+        <!-- Header: Stats -->
+        <div class="w-full flex justify-between items-center glass-panel rounded-2xl p-4 mb-4 mt-2">
+            <div class="flex flex-col">
+                <span class="text-xs text-gray-400 uppercase tracking-widest">Баланс</span>
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold">$</div>
+                    <span id="scoreDisplay" class="text-2xl font-bold tracking-wider">0</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-xs text-gray-400 uppercase tracking-widest">Уровень</span>
+                <div id="levelDisplay" class="text-purple-300 font-bold">Новичок</div>
+            </div>
+        </div>
+
+        <!-- Game Area: The Coin -->
+        <div class="flex-grow flex items-center justify-center relative w-full perspective-container">
+            <div id="coin" class="coin-btn w-64 h-64 rounded-full flex items-center justify-center cursor-pointer no-select relative group">
+                <!-- Inner design of coin -->
+                <div class="w-56 h-56 rounded-full border-4 border-purple-500/30 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-32 h-32 text-purple-200 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energy Bar -->
+        <div class="w-full mb-4 px-2">
+            <div class="flex justify-between text-sm mb-1 font-bold text-purple-200">
+                <span>⚡ Энергия</span>
+                <span id="energyText">1000 / 1000</span>
+            </div>
+            <div class="w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                <div id="energyBar" class="h-full bg-gradient-to-r from-purple-600 to-blue-500 transition-all duration-300" style="width: 100%"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Menu / Shop -->
+        <div class="glass-panel rounded-2xl p-2 grid grid-cols-2 gap-2">
+            <!-- Upgrade Multitap -->
+            <button onclick="buyUpgrade('multitap')" id="btnMultitap" class="bg-gray-800/80 hover:bg-gray-700 active:bg-gray-600 rounded-xl p-3 text-left transition relative overflow-hidden border border-purple-900/50">
+                <div class="text-xs text-gray-400 mb-1">Мультитап</div>
+                <div class="font-bold text-sm text-white">Lvl <span id="lvlMultitap">1</span></div>
+                <div class="text-purple-400 text-xs mt-1 font-mono" id="costMultitap">100 монет</div>
+            </button>
+
+            <!-- Upgrade Energy -->
+            <button onclick="buyUpgrade('energy')" id="btnEnergy" class="bg-gray-800/80 hover:bg-gray-700 active:bg-gray-600 rounded-xl p-3 text-left transition relative overflow-hidden border border-purple-900/50">
+                <div class="text-xs text-gray-400 mb-1">Лимит энергии</div>
+                <div class="font-bold text-sm text-white">Lvl <span id="lvlEnergy">1</span></div>
+                <div class="text-purple-400 text-xs mt-1 font-mono" id="costEnergy">100 монет</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 z-50 pointer-events-none text-sm font-bold">
+        Недостаточно монет!
+    </div>
+
+    <script>
+        // --- Game Config & State ---
+        const GameState = {
+            balance: 0,
+            energy: 1000,
+            maxEnergy: 1000,
+            energyRechargeRate: 3, // energy per second
+            multitapLevel: 1,
+            energyLevel: 1,
+            lastSaveTime: Date.now()
+        };
+
+        const Upgrades = {
+            multitap: { baseCost: 100, costMultiplier: 2, powerBase: 1 },
+            energy: { baseCost: 100, costMultiplier: 1.5, powerBase: 500 }
+        };
+
+        // --- Telegram Integration ---
+        const tg = window.Telegram.WebApp;
+        
+        function initTelegram() {
+            tg.expand(); // Open full screen
+            tg.ready();
+            
+            // Set header color to match game bg
+            tg.setHeaderColor('#000000');
+            tg.setBackgroundColor('#000000');
+        }
+
+        // --- Core Logic ---
+
+        function loadGame() {
+            const saved = localStorage.getItem('neonTapSave');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Merge saved data with default structure to prevent errors on updates
+                Object.assign(GameState, parsed);
+                
+                // Calculate offline energy regeneration
+                const now = Date.now();
+                const secondsPassed = (now - GameState.lastSaveTime) / 1000;
+                const regained = Math.floor(secondsPassed * GameState.energyRechargeRate);
+                GameState.energy = Math.min(GameState.maxEnergy, GameState.energy + regained);
+            }
+            updateUI();
+        }
+
+        function saveGame() {
+            GameState.lastSaveTime = Date.now();
+            localStorage.setItem('neonTapSave', JSON.stringify(GameState));
+        }
+
+        function getClickPower() {
+            return GameState.multitapLevel; // 1 click = level amount
+        }
+
+        function getUpgradeCost(type) {
+            const level = type === 'multitap' ? GameState.multitapLevel : GameState.energyLevel;
+            const config = Upgrades[type];
+            return Math.floor(config.baseCost * Math.pow(config.costMultiplier, level - 1));
+        }
+
+        // --- Interaction ---
+
+        const coin = document.getElementById('coin');
+
+        // Handle Touch and Click for the coin
+        coin.addEventListener('pointerdown', (e) => {
+            // Prevent default touch behaviors
+            e.preventDefault();
+
+            if (GameState.energy >= getClickPower()) {
+                handleTap(e);
+            } else {
+                // Shake animation for no energy
+                coin.style.transform = "translateX(5px)";
+                setTimeout(() => coin.style.transform = "translateX(-5px)", 50);
+                setTimeout(() => coin.style.transform = "none", 100);
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        });
+
+        function handleTap(e) {
+            const power = getClickPower();
+            
+            // Update State
+            GameState.balance += power;
+            GameState.energy -= power;
+            
+            // Haptics (Vibration)
+            tg.HapticFeedback.impactOccurred('medium');
+
+            // 3D Tilt Effect logic
+            const rect = coin.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            // Apply tilt
+            coin.style.transform = `perspective(1000px) rotateX(${-y / 10}deg) rotateY(${x / 10}deg) scale(0.95)`;
+            setTimeout(() => {
+                coin.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            }, 100);
+
+            // Floating Number
+            createFloatingText(e.clientX, e.clientY, `+${power}`);
+
+            updateUI();
+        }
+
+        function createFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+
+            setTimeout(() => el.remove(), 800);
+        }
+
+        // --- Shop Logic ---
+
+        window.buyUpgrade = function(type) {
+            const cost = getUpgradeCost(type);
+            
+            if (GameState.balance >= cost) {
+                GameState.balance -= cost;
+                
+                if (type === 'multitap') {
+                    GameState.multitapLevel++;
+                } else if (type === 'energy') {
+                    GameState.energyLevel++;
+                    GameState.maxEnergy += Upgrades.energy.powerBase;
+                    GameState.energy = GameState.maxEnergy; // Refill on upgrade
+                }
+                
+                tg.HapticFeedback.notificationOccurred('success');
+                saveGame();
+                updateUI();
+            } else {
+                showToast("Не хватает монет!");
+                tg.HapticFeedback.notificationOccurred('warning');
+            }
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        // --- UI Updates ---
+
+        function updateUI() {
+            // Main Stats
+            document.getElementById('scoreDisplay').innerText = GameState.balance.toLocaleString();
+            
+            // Energy
+            const pct = (GameState.energy / GameState.maxEnergy) * 100;
+            document.getElementById('energyBar').style.width = `${pct}%`;
+            document.getElementById('energyText').innerText = `${Math.floor(GameState.energy)} / ${GameState.maxEnergy}`;
+
+            // Shop Buttons
+            document.getElementById('lvlMultitap').innerText = GameState.multitapLevel;
+            document.getElementById('costMultitap').innerText = getUpgradeCost('multitap').toLocaleString();
+            
+            document.getElementById('lvlEnergy').innerText = GameState.energyLevel;
+            document.getElementById('costEnergy').innerText = getUpgradeCost('energy').toLocaleString();
+
+            // Level Text
+            let lvlName = "Новичок";
+            if(GameState.balance > 5000) lvlName = "Любитель";
+            if(GameState.balance > 25000) lvlName = "Профи";
+            if(GameState.balance > 100000) lvlName = "Магнат";
+            if(GameState.balance > 1000000) lvlName = "Кибер-Лорд";
+            document.getElementById('levelDisplay').innerText = lvlName;
+        }
+
+        // --- Loop ---
+
+        setInterval(() => {
+            if (GameState.energy < GameState.maxEnergy) {
+                GameState.energy += GameState.energyRechargeRate;
+                if (GameState.energy > GameState.maxEnergy) GameState.energy = GameState.maxEnergy;
+                updateUI();
+            }
+            // Auto save every 5 seconds
+            if (Date.now() - GameState.lastSaveTime > 5000) {
+                saveGame();
+            }
+        }, 1000);
+
+        // --- Init ---
+        initTelegram();
+        loadGame();
+
+    </script>
+</body>
+</html>
