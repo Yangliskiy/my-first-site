@@ -103,6 +103,25 @@
         @keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 10px #eab308; } 50% { box-shadow: 0 0 30px #eab308; } }
         .spin-cooldown { background: #333; color: #777; cursor: not-allowed; }
 
+        /* --- FLOATING TEXT (FIXED) --- */
+        .floating-text {
+            position: absolute;
+            font-family: 'Russo One', sans-serif;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 100; /* Increased z-index */
+            font-size: 28px;
+            font-weight: bold;
+            color: #4ade80; /* Added default green color */
+            text-shadow: 0 0 10px currentColor;
+        }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-80px); } }
+        .crit-text {
+            color: #ef4444 !important;
+            font-size: 36px;
+            text-shadow: 0 0 20px #ef4444;
+        }
+
         /* --- CASE OPENING (CS:GO STYLE) --- */
         #caseModal {
             z-index: 150;
@@ -440,7 +459,7 @@
             tiltX = (e.clientX / width - 0.5) * 2; tiltY = (e.clientY / height - 0.5) * 2;
         });
 
-        // --- LIQUID PHYSICS ---
+        // --- LIQUID PHYSICS SYSTEM (NEW) ---
         const liquidCanvas = document.getElementById('liquidCanvas');
         const lCtx = liquidCanvas.getContext('2d');
         let lWidth, lHeight;
@@ -451,12 +470,13 @@
         window.addEventListener('resize', resizeLiquid); resizeLiquid();
 
         function spawnPourParticles(x, y, color) {
+            // Spawn multiple particles per frame for stream effect
             for(let i=0; i<3; i++) {
                 liquidParticles.push({
                     x: x + (Math.random()-0.5)*4, 
                     y: y + (Math.random()-0.5)*4,
                     vx: (Math.random()-0.5)*1,
-                    vy: Math.random()*2 + 2, 
+                    vy: Math.random()*2 + 2, // Initial downward velocity
                     color: color,
                     life: 1.0
                 });
@@ -468,7 +488,7 @@
                 splashParticles.push({
                     x: x, y: y,
                     vx: (Math.random()-0.5)*4,
-                    vy: (Math.random()-1)*4, 
+                    vy: (Math.random()-1)*4, // Upward splash
                     color: color,
                     life: 1.0,
                     size: Math.random()*3 + 1
@@ -480,28 +500,55 @@
             lCtx.clearRect(0, 0, lWidth, lHeight);
             const mixingPot = document.getElementById('mixingPot');
             const potRect = mixingPot.getBoundingClientRect();
+            // pot liquid level approx y
             const potY = potRect.top + potRect.height * 0.7; 
 
+            // Update & Draw Liquid Stream
             for (let i = liquidParticles.length - 1; i >= 0; i--) {
                 let p = liquidParticles[i];
-                p.x += p.vx; p.y += p.vy; p.vy += 0.5; 
-                lCtx.beginPath(); lCtx.moveTo(p.x, p.y); lCtx.lineTo(p.x - p.vx, p.y - p.vy*1.5);
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.5; // Gravity
+                
+                // Draw stretched droplet
+                lCtx.beginPath();
+                lCtx.moveTo(p.x, p.y);
+                lCtx.lineTo(p.x - p.vx, p.y - p.vy*1.5); // Stretch tail
                 lCtx.strokeStyle = p.color === 'red' ? '#ef4444' : p.color === 'green' ? '#22c55e' : '#3b82f6';
-                lCtx.lineWidth = 3; lCtx.lineCap = 'round'; lCtx.stroke();
+                lCtx.lineWidth = 3;
+                lCtx.lineCap = 'round';
+                lCtx.stroke();
 
+                // Hit detection with pot liquid surface
                 if (p.y >= potY && p.x >= potRect.left && p.x <= potRect.right) {
-                    spawnSplash(p.x, potY, p.color); liquidParticles.splice(i, 1);
-                } else if (p.y > lHeight) { liquidParticles.splice(i, 1); }
+                    spawnSplash(p.x, potY, p.color);
+                    liquidParticles.splice(i, 1);
+                } else if (p.y > lHeight) {
+                    liquidParticles.splice(i, 1);
+                }
             }
 
+            // Update & Draw Splashes
             for (let i = splashParticles.length - 1; i >= 0; i--) {
                 let s = splashParticles[i];
-                s.x += s.vx; s.y += s.vy; s.vy += 0.2; s.life -= 0.05;
-                if (s.life <= 0) { splashParticles.splice(i, 1); continue; }
-                lCtx.beginPath(); lCtx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+                s.x += s.vx;
+                s.y += s.vy;
+                s.vy += 0.2; // Gravity
+                s.life -= 0.05;
+                
+                if (s.life <= 0) {
+                    splashParticles.splice(i, 1);
+                    continue;
+                }
+
+                lCtx.beginPath();
+                lCtx.arc(s.x, s.y, s.size, 0, Math.PI*2);
                 lCtx.fillStyle = s.color === 'red' ? '#ef4444' : s.color === 'green' ? '#22c55e' : '#3b82f6';
-                lCtx.globalAlpha = s.life; lCtx.fill(); lCtx.globalAlpha = 1;
+                lCtx.globalAlpha = s.life;
+                lCtx.fill();
+                lCtx.globalAlpha = 1;
             }
+
             requestAnimationFrame(animateLiquid);
         }
         animateLiquid();
@@ -786,6 +833,15 @@
                 GameState.balance += prize; GameState.lastSpinTime = Date.now(); showToast(msg); updateUI();
             }, 4000);
         }
+        function createFloatingText(x, y, txt, isCrit) {
+            const el = document.createElement('div');
+            el.className = 'floating-text' + (isCrit ? ' crit-text' : '');
+            el.innerText = txt;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
         
         // --- CASE OPENING LOGIC ---
         function generateReel(type) {
@@ -896,7 +952,7 @@
                 if(GameState.items.unstableIsotope && Math.random()<0.1) { isCrit=true; power*=5; tg.HapticFeedback.notificationOccurred('warning'); }
                 else tg.HapticFeedback.impactOccurred('medium');
                 GameState.balance += power; GameState.energy -= 1;
-                const el = document.createElement('div'); el.className = 'floating-text' + (isCrit ? ' crit-text' : ''); el.innerText = `+${Math.floor(power)}`; el.style.left = e.clientX+'px'; el.style.top = e.clientY+'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
+                createFloatingText(e.clientX, e.clientY, `+${Math.floor(power)}`, isCrit);
                 clickTarget.style.transform = `scale(0.95) rotate(${Math.random()*10-5}deg)`; setTimeout(()=>clickTarget.style.transform = 'scale(1)', 50);
                 const flask = document.getElementById('clickTarget');
                 if(Date.now() < GameState.hulkEndTime) flask.style.color = '#a855f7'; else if(Date.now() < GameState.boostEndTime) flask.style.color = '#ef4444'; else flask.style.color = '#22c55e';
