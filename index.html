@@ -14,191 +14,164 @@
             background-color: #000;
             color: #ffffff;
             overflow: hidden;
-            touch-action: manipulation;
+            touch-action: none;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
         }
 
-        /* --- PHYSICS CANVAS BACKGROUND --- */
+        /* --- PHYSICS CANVAS --- */
         #physicsCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
         }
 
-        /* --- GLOBAL NEON PULSE --- */
-        body, button, span, div {
-            text-shadow: 0 0 5px currentColor;
+        /* --- LIQUID CANVAS --- */
+        #liquidCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none;
         }
-        
+
+        /* --- FONTS & PULSE --- */
+        body, button, span, div { text-shadow: 0 0 5px currentColor; }
         @keyframes text-breathe {
             0% { text-shadow: 0 0 4px currentColor; filter: brightness(1); }
             50% { text-shadow: 0 0 10px currentColor; filter: brightness(1.2); }
             100% { text-shadow: 0 0 4px currentColor; filter: brightness(1); }
         }
+        h1, h2, .font-title, #scoreDisplay, #energyText { animation: text-breathe 3s infinite ease-in-out; }
 
-        h1, h2, .font-title, #scoreDisplay, #energyText, .flask-btn {
-            animation: text-breathe 3s infinite ease-in-out;
-        }
-
-        /* --- UI ELEMENTS --- */
+        /* --- UI --- */
         .glass-panel {
-            background: rgba(10, 10, 15, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
-
-        .shop-grid { scrollbar-width: none; -ms-overflow-style: none; }
+        .shop-grid { scrollbar-width: none; }
         .shop-grid::-webkit-scrollbar { display: none; }
-
         .tab-active {
             background: linear-gradient(to top, rgba(168,85,247,0.2), transparent);
             border-bottom: 2px solid #a855f7;
-            color: #d8b4fe;
-            text-shadow: 0 0 15px #a855f7;
+            color: #d8b4fe; text-shadow: 0 0 15px #a855f7;
         }
-        .tab-inactive {
-            color: #6b7280;
-            border-bottom: 2px solid transparent;
-        }
-        
+        .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
         button:active { transform: scale(0.97); }
 
-        /* --- FLASK & DRAG --- */
-        .flask-main {
-            transition: transform 0.05s;
-            color: #22c55e;
-        }
+        /* --- MAIN FLASK --- */
+        .flask-main { transition: transform 0.05s; color: #22c55e; }
         .flask-main:active { transform: scale(0.95); }
 
+        /* --- DRAG SYSTEM --- */
         .draggable-flask {
-            touch-action: none;
-            position: relative;
-            z-index: 20;
-            transition: transform 0.1s;
+            position: relative; width: 60px; height: 90px;
+            touch-action: none; z-index: 20;
+            transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1); transform-origin: center center;
         }
-        .draggable-flask.dragging {
-            z-index: 100;
-            transform: scale(1.3);
-            filter: drop-shadow(0 0 20px currentColor);
-        }
-        .draggable-flask.pouring {
-            transition: all 0.5s ease-in-out;
-            z-index: 50;
-        }
+        .draggable-flask.dragging { z-index: 100; scale: 1.2; filter: drop-shadow(0 0 15px currentColor); transition: none; }
+        .draggable-flask.pouring { transition: transform 0.3s ease; }
+        .draggable-flask.pouring .flask-svg { transform: rotate(-100deg); }
+        .flask-svg { width: 100%; height: 100%; transition: transform 0.3s ease; transform-origin: 50% 80%; }
+        .flask-mouth { position: absolute; top: 2px; left: 25px; width: 10px; height: 10px; pointer-events: none; }
         .pour-stream {
-            position: absolute;
-            width: 6px;
-            height: 0;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: currentColor;
-            border-radius: 4px;
-            pointer-events: none;
-            z-index: 40;
-            transition: height 0.2s;
-            box-shadow: 0 0 10px currentColor;
-            opacity: 0.9;
+            position: absolute; width: 6px; height: 0; top: 50px; left: 50%; transform: translateX(-50%);
+            background: currentColor; border-radius: 4px; pointer-events: none; z-index: 40;
+            transition: height 0.2s; box-shadow: 0 0 10px currentColor; opacity: 0.9;
         }
         #mixingPot { transition: transform 0.2s; }
-        #mixingPot.receive-liquid { transform: scale(1.1); filter: drop-shadow(0 0 20px white); }
-        #mixLiquid { transition: fill 0.5s ease, d 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        #mixingPot.receive-liquid { transform: scale(1.05); filter: drop-shadow(0 0 25px white); }
+        #mixLiquid { transition: fill 0.5s ease; }
 
-        /* --- CASINO --- */
+        /* --- CASINO ROULETTE --- */
         .roulette-wheel {
-            width: 240px; height: 240px;
-            border-radius: 50%; border: 8px solid #1f1f1f;
-            background: conic-gradient(
-                #ef4444 0deg 60deg, 
-                #f59e0b 60deg 120deg, 
-                #22c55e 120deg 180deg, 
-                #3b82f6 180deg 240deg, 
-                #a855f7 240deg 300deg, 
-                #ec4899 300deg 360deg
-            );
-            position: relative;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-            box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 1px 2px black;
-            font-size: 14px;
+            width: 240px; height: 240px; border-radius: 50%; border: 8px solid #222;
+            background: conic-gradient(#ef4444 0deg 60deg, #f59e0b 60deg 120deg, #22c55e 120deg 180deg, #3b82f6 180deg 240deg, #a855f7 240deg 300deg, #ec4899 300deg 360deg);
+            position: relative; transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); color: white; font-weight: bold; font-size: 14px;
         }
-        .roulette-label {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform-origin: 0 0;
-            height: 110px; /* Radius - border */
-            width: 0;
-            display: flex;
-            justify-content: center;
-            padding-top: 10px;
-            z-index: 5;
-        }
-        /* Rotated labels centered in segments */
+        .roulette-label { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; height: 110px; width: 0; display: flex; justify-content: center; padding-top: 10px; }
         .label-0 { transform: rotate(30deg) translateY(-110px); }
         .label-1 { transform: rotate(90deg) translateY(-110px); }
         .label-2 { transform: rotate(150deg) translateY(-110px); }
         .label-3 { transform: rotate(210deg) translateY(-110px); }
         .label-4 { transform: rotate(270deg) translateY(-110px); }
         .label-5 { transform: rotate(330deg) translateY(-110px); }
-
         .roulette-pointer {
             position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
             border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid #fbbf24;
             z-index: 20; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.8));
         }
-        
         .spin-ready { background: #eab308; color: black; box-shadow: 0 0 20px #eab308; animation: pulse-gold 1s infinite; }
         @keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 10px #eab308; } 50% { box-shadow: 0 0 30px #eab308; } }
         .spin-cooldown { background: #333; color: #777; cursor: not-allowed; }
 
-        /* --- FLOATING TEXT --- */
-        .floating-text {
-            position: absolute;
+        /* --- CASE OPENING (CS:GO STYLE) --- */
+        #caseModal {
+            z-index: 150;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+        }
+        .case-window {
+            width: 100%;
+            height: 140px;
+            background: #111;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px #000;
+        }
+        .case-reel {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            /* Will be animated via transform */
+            width: max-content; 
+        }
+        .case-item {
+            width: 100px;
+            height: 100px;
+            margin: 0 5px;
+            background: #1a1a1a;
+            border-bottom: 4px solid #555;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
             font-family: 'Russo One', sans-serif;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 50;
-            font-size: 28px;
-            font-weight: bold;
-            text-shadow: 0 0 10px currentColor;
+            position: relative;
         }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-80px) scale(1.3); } }
-
-        /* --- SMUGGLER & LEGENDARY --- */
-        #smugglerBtn {
-            position: absolute; top: 70px; right: 10px; z-index: 60;
-            animation: pulse-smuggler 2s infinite;
-        }
-        @keyframes pulse-smuggler { 0% { transform: scale(1); filter: drop-shadow(0 0 5px #a855f7); } 50% { transform: scale(1.1); filter: drop-shadow(0 0 20px #d8b4fe); } 100% { transform: scale(1); } }
+        .case-item.rarity-common { border-color: #9ca3af; background: linear-gradient(to bottom, #1f2937, #111); }
+        .case-item.rarity-uncommon { border-color: #22c55e; background: linear-gradient(to bottom, #064e3b, #111); }
+        .case-item.rarity-rare { border-color: #3b82f6; background: linear-gradient(to bottom, #1e3a8a, #111); }
+        .case-item.rarity-epic { border-color: #a855f7; background: linear-gradient(to bottom, #581c87, #111); box-shadow: 0 0 15px rgba(168,85,247,0.2); }
+        .case-item.rarity-legendary { border-color: #eab308; background: linear-gradient(to bottom, #713f12, #111); box-shadow: 0 0 25px rgba(234,179,8,0.4); }
         
-        .legendary-item {
-            border: 1px solid transparent;
-            animation: legendary-border 2s infinite alternate;
-            background: linear-gradient(90deg, rgba(0,0,0,0.5), rgba(20,0,30,0.5));
+        .case-center-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #fbbf24;
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 0 10px #fbbf24;
         }
-        @keyframes legendary-border {
-            0% { border-color: #a855f7; box-shadow: 0 0 5px #a855f7; }
-            100% { border-color: #f472b6; box-shadow: 0 0 15px #f472b6, inset 0 0 10px rgba(244, 114, 182, 0.2); }
-        }
+
+        /* --- SMUGGLER --- */
+        #smugglerBtn { position: absolute; top: 70px; right: 10px; z-index: 60; animation: pulse-smuggler 2s infinite; }
+        @keyframes pulse-smuggler { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        .legendary-item { animation: legendary-shine 1.5s infinite alternate; background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)); border: 1px solid transparent; }
+        @keyframes legendary-shine { 0% { border-color: rgba(251,191,36,0.5); } 100% { border-color: rgba(236,72,153,0.8); box-shadow: 0 0 15px rgba(236,72,153,0.4); } }
     </style>
 </head>
 <body id="gameBody">
     
-    <!-- PHYSICS BACKGROUND -->
     <canvas id="physicsCanvas"></canvas>
+    <canvas id="liquidCanvas"></canvas>
 
-    <!-- SMUGGLER -->
     <div id="smugglerBtn" class="hidden cursor-pointer" onclick="openSmuggler()">
-        <div class="w-16 h-16 rounded-full bg-black border-2 border-purple-500 flex items-center justify-center text-4xl relative shadow-2xl">
+        <div class="w-16 h-16 rounded-full bg-black border-2 border-purple-500 flex items-center justify-center text-4xl shadow-2xl relative">
             <span class="relative z-10">🕵️‍♂️</span>
             <div class="absolute bottom-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-tl-lg z-20" id="smugglerTimerDisplay">30s</div>
         </div>
@@ -206,8 +179,7 @@
 
     <!-- MAIN UI -->
     <div class="relative z-10 w-full h-full flex flex-col justify-between p-4 max-w-md mx-auto">
-        
-        <!-- HEADER -->
+        <!-- Header -->
         <div class="w-full flex justify-between items-center glass-panel rounded-2xl p-4 mb-2 border-l-4 border-purple-500">
             <div class="flex flex-col">
                 <span class="text-[10px] text-purple-300 uppercase tracking-widest font-bold">Склад (мг)</span>
@@ -228,34 +200,34 @@
         <!-- CLICK AREA -->
         <div id="clickerArea" class="flex-grow flex items-center justify-center relative min-h-0">
             <div id="clickTarget" class="flask-main w-64 h-64 flex items-center justify-center cursor-pointer select-none relative z-10">
-                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_0_30px_currentColor]">
+                <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-[0_0_30px_currentColor] overflow-visible">
                     <defs>
-                        <linearGradient id="liquidGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                            <stop offset="0%" stop-color="currentColor" stop-opacity="1" />
-                            <stop offset="100%" stop-color="#fff" stop-opacity="0.2" />
-                        </linearGradient>
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
                     </defs>
-                    <path d="M75,20 L125,20 L125,70 L160,130 C170,145 170,180 145,180 L55,180 C30,180 30,145 40,130 L75,70 Z" 
-                          fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
-                    <path d="M80,80 L120,80 L148,130 C155,142 155,170 140,170 L60,170 C45,170 45,142 52,130 Z" 
-                          fill="currentColor" class="opacity-80"/>
-                    <circle cx="100" cy="150" r="5" fill="#fff" opacity="0.5"><animate attributeName="cy" values="150;110" dur="1.5s" repeatCount="indefinite"/></circle>
+                    <path d="M75,20 L125,20 L125,70 L160,130 C170,145 170,180 145,180 L55,180 C30,180 30,145 40,130 L75,70 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                    <g filter="url(#glow)">
+                        <path d="M80,80 L120,80 L148,130 C155,142 155,170 140,170 L60,170 C45,170 45,142 52,130 Z" fill="currentColor" class="opacity-80"/>
+                        <circle cx="90" cy="160" r="4" fill="#fff" opacity="0.6"><animate attributeName="cy" values="160;100" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0" dur="1.2s" repeatCount="indefinite"/></circle>
+                        <circle cx="110" cy="160" r="3" fill="#fff" opacity="0.6"><animate attributeName="cy" values="160;90" dur="1.5s" begin="0.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.6;0" dur="1.5s" begin="0.3s" repeatCount="indefinite"/></circle>
+                        <circle cx="100" cy="170" r="5" fill="#fff" opacity="0.5"><animate attributeName="cy" values="170;110" dur="2s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="r" values="5;8" dur="2s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0" dur="2s" begin="0.7s" repeatCount="indefinite"/></circle>
+                        <ellipse cx="100" cy="80" rx="20" ry="2" fill="rgba(255,255,255,0.4)"><animate attributeName="rx" values="20;22;20" dur="1s" repeatCount="indefinite"/><animate attributeName="ry" values="2;3;2" dur="1.5s" repeatCount="indefinite"/></ellipse>
+                    </g>
                 </svg>
             </div>
         </div>
 
-        <!-- ENERGY -->
+        <!-- Energy -->
         <div class="w-full mb-3">
-            <div class="flex justify-between text-xs mb-1 font-bold text-purple-200 tracking-wider">
-                <span>⚡ ЭНЕРГИЯ</span>
-                <span id="energyText">1000/1000</span>
-            </div>
+            <div class="flex justify-between text-xs mb-1 font-bold text-purple-200 tracking-wider"><span>⚡ ЭНЕРГИЯ</span><span id="energyText">1000/1000</span></div>
             <div class="w-full h-3 bg-gray-900 rounded-full border border-white/20 overflow-hidden relative">
                 <div id="energyBar" class="h-full bg-gradient-to-r from-purple-900 via-purple-500 to-white transition-all duration-300" style="width: 100%"></div>
             </div>
         </div>
 
-        <!-- TABS & SHOP -->
+        <!-- Panels -->
         <div class="glass-panel rounded-2xl flex flex-col h-[40vh] overflow-hidden relative z-30">
             <div class="flex border-b border-white/10 bg-black/30 overflow-x-auto shrink-0">
                 <button onclick="switchTab('upgrades')" id="tabUpgrades" class="flex-1 py-3 px-2 text-xs font-bold uppercase tracking-widest tab-active">Цех</button>
@@ -265,62 +237,48 @@
             </div>
 
             <div class="flex-1 overflow-y-auto shop-grid p-3 relative h-full">
-                
-                <!-- UPGRADES -->
+                <!-- Upgrades -->
                 <div id="contentUpgrades" class="space-y-3">
                     <button onclick="buyUpgrade('location')" id="btnLocation" class="w-full group relative overflow-hidden bg-gradient-to-r from-indigo-900/60 to-purple-900/60 border border-indigo-500/40 rounded-xl p-3 text-left transition-all">
                         <div class="flex justify-between items-center relative z-10">
-                            <div class="flex items-center gap-3">
-                                <div class="text-2xl">🏗️</div>
-                                <div><div class="text-xs text-indigo-200 uppercase font-bold">Переезд</div><div class="text-[10px] text-indigo-300">Доход x2</div></div>
-                            </div>
+                            <div class="flex items-center gap-3"><div class="text-2xl">🏗️</div><div><div class="text-xs text-indigo-200 uppercase font-bold">Переезд</div><div class="text-[10px] text-indigo-300">Доход x2</div></div></div>
                             <div class="text-right"><div class="text-white text-sm font-bold" id="nextLocName">Гараж</div><div class="text-indigo-300 text-xs font-bold" id="costLocation">5,000</div></div>
                         </div>
                     </button>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="buyUpgrade('multitap')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10">
-                            <div class="text-[10px] text-purple-300 font-bold uppercase">Синтез</div>
-                            <div class="text-white font-bold">Ур. <span id="lvlMultitap">1</span></div>
-                            <div class="text-gray-400 text-[10px]" id="costMultitap">100</div>
-                        </button>
-                        <button onclick="buyUpgrade('energy')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10">
-                            <div class="text-[10px] text-pink-300 font-bold uppercase">Емкость</div>
-                            <div class="text-white font-bold">Ур. <span id="lvlEnergy">1</span></div>
-                            <div class="text-gray-400 text-[10px]" id="costEnergy">100</div>
-                        </button>
-                        <button onclick="buyUpgrade('recharge')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10">
-                            <div class="text-[10px] text-blue-300 font-bold uppercase">Охлаждение</div>
-                            <div class="text-white font-bold">Ур. <span id="lvlRecharge">1</span></div>
-                            <div class="text-gray-400 text-[10px]" id="costRecharge">100</div>
-                        </button>
-                        <button onclick="buyUpgrade('autobot')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10">
-                            <div class="text-[10px] text-yellow-300 font-bold uppercase">Авто-Варка</div>
-                            <div class="text-white font-bold">Ур. <span id="lvlAutobot">0</span></div>
-                            <div class="text-gray-400 text-[10px]" id="costAutobot">500</div>
-                        </button>
+                        <button onclick="buyUpgrade('multitap')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10"><div class="text-[10px] text-purple-300 font-bold uppercase">Синтез</div><div class="text-white font-bold">Ур. <span id="lvlMultitap">1</span></div><div class="text-gray-400 text-[10px]" id="costMultitap">100</div></button>
+                        <button onclick="buyUpgrade('energy')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10"><div class="text-[10px] text-pink-300 font-bold uppercase">Емкость</div><div class="text-white font-bold">Ур. <span id="lvlEnergy">1</span></div><div class="text-gray-400 text-[10px]" id="costEnergy">100</div></button>
+                        <button onclick="buyUpgrade('recharge')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10"><div class="text-[10px] text-blue-300 font-bold uppercase">Охлаждение</div><div class="text-white font-bold">Ур. <span id="lvlRecharge">1</span></div><div class="text-gray-400 text-[10px]" id="costRecharge">100</div></button>
+                        <button onclick="buyUpgrade('autobot')" class="bg-white/5 border border-white/10 rounded-xl p-2 text-left h-20 flex flex-col justify-between hover:bg-white/10"><div class="text-[10px] text-yellow-300 font-bold uppercase">Авто-Варка</div><div class="text-white font-bold">Ур. <span id="lvlAutobot">0</span></div><div class="text-gray-400 text-[10px]" id="costAutobot">500</div></button>
                     </div>
                 </div>
 
-                <!-- SYNTHESIS -->
+                <!-- Synthesis -->
                 <div id="contentSynthesis" class="hidden h-full flex flex-col items-center">
-                    <div class="w-full bg-black/40 rounded-xl p-2 text-center border border-white/10 mb-4">
+                    <div class="w-full bg-black/40 rounded-xl p-2 text-center border border-white/10 mb-2 shrink-0">
                         <div class="flex items-center justify-center gap-2">
                             <div id="targetColorSample" class="w-6 h-6 rounded-full border border-white/50 shadow-[0_0_15px_currentColor]"></div>
                             <span id="targetColorName" class="font-bold text-lg">ЦЕЛЬ</span>
                         </div>
                     </div>
-                    <div class="flex-grow w-full flex flex-col items-center justify-center">
+                    <div class="flex-grow w-full flex flex-col items-center justify-center relative">
                         <div id="mixingPot" class="relative w-32 h-32 flex items-center justify-center transition-transform">
                             <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] pointer-events-none">
                                 <path d="M20,20 L80,20 L80,80 C80,90 70,95 50,95 C30,95 20,90 20,80 Z" fill="rgba(255,255,255,0.05)" stroke="white" stroke-width="1"/>
-                                <path id="mixLiquid" d="M22,88 L78,88 L78,90 C78,92 68,93 50,93 C32,93 22,92 22,90 Z" fill="#111" class="mix-liquid"/>
+                                <path id="mixLiquid" d="M22,88 L78,88 L78,90 C78,92 68,93 50,93 C32,93 22,92 22,90 Z" fill="#111"/>
                             </svg>
                         </div>
-                        <div class="w-full grid grid-cols-3 gap-2 px-2 h-24 items-end mt-4">
+                        <div class="w-full grid grid-cols-3 gap-2 px-2 h-28 items-end mt-4">
                             <!-- Flasks -->
-                            <div class="flex flex-col items-center"><div class="draggable-flask w-12 h-16 cursor-grab text-red-500" data-color="red"><div class="pour-stream"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(255,0,0,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
-                            <div class="flex flex-col items-center"><div class="draggable-flask w-12 h-16 cursor-grab text-green-500" data-color="green"><div class="pour-stream"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(0,255,0,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
-                            <div class="flex flex-col items-center"><div class="draggable-flask w-12 h-16 cursor-grab text-blue-500" data-color="blue"><div class="pour-stream"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(0,0,255,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
+                            <div class="flex flex-col items-center relative h-full justify-end">
+                                <div class="draggable-flask cursor-grab text-red-500" data-color="red"><div class="flask-svg"><div class="flask-mouth"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(255,0,0,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
+                            </div>
+                            <div class="flex flex-col items-center relative h-full justify-end">
+                                <div class="draggable-flask cursor-grab text-green-500" data-color="green"><div class="flask-svg"><div class="flask-mouth"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(0,255,0,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
+                            </div>
+                            <div class="flex flex-col items-center relative h-full justify-end">
+                                <div class="draggable-flask cursor-grab text-blue-500" data-color="blue"><div class="flask-svg"><div class="flask-mouth"></div><svg viewBox="0 0 50 80" class="w-full h-full drop-shadow-[0_0_10px_currentColor] pointer-events-none"><path d="M15,2 L35,2 L35,20 L45,70 C48,78 40,78 25,78 C10,78 2,78 5,70 L15,20 Z" fill="rgba(0,0,255,0.1)" stroke="currentColor"/><path d="M16,20 L34,20 L44,70 C46,76 40,76 25,76 C10,76 4,76 6,70 Z" fill="currentColor"/></svg></div></div>
+                            </div>
                         </div>
                     </div>
                     <button onclick="resetMix()" class="text-xs text-gray-400 underline mb-2 absolute top-2 right-4">СБРОС</button>
@@ -330,9 +288,10 @@
                     </div>
                 </div>
 
-                <!-- CASINO -->
+                <!-- Casino -->
                 <div id="contentCasino" class="hidden h-full flex flex-col items-center space-y-4 pt-2">
                     <div class="w-full bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col items-center shadow-lg">
+                        <div class="text-xs text-yellow-400 uppercase font-bold tracking-widest mb-2">Спин (каждые 3ч)</div>
                         <div class="relative mb-4">
                             <div class="roulette-pointer"></div>
                             <div class="roulette-wheel" id="rouletteWheel">
@@ -362,7 +321,7 @@
                     </div>
                 </div>
 
-                <!-- BLACK MARKET -->
+                <!-- Black Market -->
                 <div id="contentBlackmarket" class="hidden space-y-3 pt-2">
                     <button onclick="buyItem('unstableIsotope')" id="btnIsotope" class="w-full bg-red-900/20 border border-red-500/30 rounded-xl p-3 text-left flex justify-between items-center transition hover:bg-red-900/30">
                         <div class="flex items-center gap-3"><div class="text-2xl">☢️</div><div><div class="text-sm text-red-300 font-bold">Изотоп</div><div class="text-[10px] text-gray-400">Крит x5</div></div></div>
@@ -381,7 +340,19 @@
         </div>
     </div>
 
-    <!-- SMUGGLER MODAL -->
+    <!-- Case Opening Modal -->
+    <div id="caseModal" class="fixed inset-0 hidden flex flex-col justify-center items-center p-6 transition-opacity duration-300">
+        <h2 class="text-2xl font-bold text-white mb-4 tracking-widest uppercase text-shadow-lg font-title">ОТКРЫТИЕ</h2>
+        <div class="case-window rounded-xl border-4 border-gray-700 bg-gray-900">
+            <div class="case-center-line"></div>
+            <div class="case-reel" id="caseReel">
+                <!-- Items injected via JS -->
+            </div>
+        </div>
+        <div class="mt-6 text-yellow-400 font-mono text-xl animate-pulse" id="caseStatus">КРУТИМ...</div>
+    </div>
+
+    <!-- Smuggler Modal -->
     <div id="smugglerModal" class="fixed inset-0 z-[100] hidden flex flex-col justify-center items-center p-6 bg-black/90 backdrop-blur-xl">
         <div class="smuggler-modal w-full max-w-sm rounded-3xl p-6 relative overflow-hidden flex flex-col border border-purple-500/50 shadow-[0_0_50px_purple]">
             <button class="absolute top-3 right-3 text-white/50 text-2xl" onclick="closeSmuggler()">✕</button>
@@ -408,89 +379,11 @@
         let width, height;
         let particles = [];
         let tiltX = 0, tiltY = 0;
+        let currentGlobalHue = 120; // Green
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.size = Math.random() * 2 + 1;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.color = `hsl(${Math.random()*60 + 240}, 70%, 70%)`; // Blue/Purple range
-                this.alpha = Math.random() * 0.5 + 0.2;
-            }
-            update() {
-                // Gravity based on tilt
-                this.vx += tiltX * 0.05;
-                this.vy += tiltY * 0.05;
-                
-                // Friction
-                this.vx *= 0.98;
-                this.vy *= 0.98;
-
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Wrap around
-                if(this.x < 0) this.x = width;
-                if(this.x > width) this.x = 0;
-                if(this.y < 0) this.y = height;
-                if(this.y > height) this.y = 0;
-            }
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.alpha;
-                ctx.fill();
-                ctx.globalAlpha = 1;
-                // Glow
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
-            }
-        }
-
-        // Init Particles
-        for(let i=0; i<80; i++) particles.push(new Particle());
-
-        function animateBg() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animateBg);
-        }
-        animateBg();
-
-        // Phone Physics
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (e) => {
-                tiltX = (e.gamma) / 45; // Left/Right
-                tiltY = (e.beta) / 45;  // Front/Back
-                // Clamp
-                if(tiltX > 1) tiltX=1; if(tiltX < -1) tiltX=-1;
-                if(tiltY > 1) tiltY=1; if(tiltY < -1) tiltY=-1;
-            });
-        }
-        // Mouse fallback
-        document.addEventListener('mousemove', (e) => {
-            tiltX = (e.clientX / width - 0.5) * 2;
-            tiltY = (e.clientY / height - 0.5) * 2;
-        });
-
-
-        /* --- GAME LOGIC --- */
+        // --- GAME STATE ---
         const GameState = {
-            balance: 0,
-            energy: 1000, maxEnergy: 1000, energyRechargeRate: 3,
+            balance: 0, energy: 1000, maxEnergy: 1000, energyRechargeRate: 3,
             multitapLevel: 1, energyLevel: 1, rechargeLevel: 1, autobotLevel: 0, locationLevel: 0,
             multiplier: 1, permMultiplier: 1,
             items: { unstableIsotope: false, blueCrystal: false, darkMatter: false },
@@ -500,6 +393,121 @@
             lastSaveTime: Date.now()
         };
 
+        const LevelThemes = [120, 210, 30, 180, 270];
+
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 1;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                this.hueOffset = Math.random() * 40 - 20; this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.vx += tiltX * 0.05; this.vy += tiltY * 0.05;
+                this.vx *= 0.98; this.vy *= 0.98;
+                this.x += this.vx; this.y += this.vy;
+                if(this.x < 0) this.x = width; if(this.x > width) this.x = 0;
+                if(this.y < 0) this.y = height; if(this.y > height) this.y = 0;
+            }
+            draw() {
+                const h = currentGlobalHue + this.hueOffset;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `hsl(${h}, 70%, 60%)`; ctx.globalAlpha = this.alpha;
+                ctx.fill(); ctx.globalAlpha = 1; ctx.shadowBlur = 10; ctx.shadowColor = `hsl(${h}, 70%, 60%)`;
+            }
+        }
+        for(let i=0; i<80; i++) particles.push(new Particle());
+
+        function animateBg() {
+            ctx.clearRect(0, 0, width, height);
+            let target = LevelThemes[GameState.locationLevel] || 120;
+            if (Math.abs(currentGlobalHue - target) > 0.5) currentGlobalHue += (target - currentGlobalHue) * 0.05;
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                tiltX = (e.gamma) / 45; tiltY = (e.beta) / 45;
+                if(tiltX>1)tiltX=1; if(tiltX<-1)tiltX=-1; if(tiltY>1)tiltY=1; if(tiltY<-1)tiltY=-1;
+            });
+        }
+        document.addEventListener('mousemove', (e) => {
+            tiltX = (e.clientX / width - 0.5) * 2; tiltY = (e.clientY / height - 0.5) * 2;
+        });
+
+        // --- LIQUID PHYSICS ---
+        const liquidCanvas = document.getElementById('liquidCanvas');
+        const lCtx = liquidCanvas.getContext('2d');
+        let lWidth, lHeight;
+        let liquidParticles = []; // {x, y, vx, vy, color, life}
+        let splashParticles = [];
+
+        function resizeLiquid() { lWidth = liquidCanvas.width = window.innerWidth; lHeight = liquidCanvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeLiquid); resizeLiquid();
+
+        function spawnPourParticles(x, y, color) {
+            for(let i=0; i<3; i++) {
+                liquidParticles.push({
+                    x: x + (Math.random()-0.5)*4, 
+                    y: y + (Math.random()-0.5)*4,
+                    vx: (Math.random()-0.5)*1,
+                    vy: Math.random()*2 + 2, 
+                    color: color,
+                    life: 1.0
+                });
+            }
+        }
+
+        function spawnSplash(x, y, color) {
+            for(let i=0; i<5; i++) {
+                splashParticles.push({
+                    x: x, y: y,
+                    vx: (Math.random()-0.5)*4,
+                    vy: (Math.random()-1)*4, 
+                    color: color,
+                    life: 1.0,
+                    size: Math.random()*3 + 1
+                });
+            }
+        }
+
+        function animateLiquid() {
+            lCtx.clearRect(0, 0, lWidth, lHeight);
+            const mixingPot = document.getElementById('mixingPot');
+            const potRect = mixingPot.getBoundingClientRect();
+            const potY = potRect.top + potRect.height * 0.7; 
+
+            for (let i = liquidParticles.length - 1; i >= 0; i--) {
+                let p = liquidParticles[i];
+                p.x += p.vx; p.y += p.vy; p.vy += 0.5; 
+                lCtx.beginPath(); lCtx.moveTo(p.x, p.y); lCtx.lineTo(p.x - p.vx, p.y - p.vy*1.5);
+                lCtx.strokeStyle = p.color === 'red' ? '#ef4444' : p.color === 'green' ? '#22c55e' : '#3b82f6';
+                lCtx.lineWidth = 3; lCtx.lineCap = 'round'; lCtx.stroke();
+
+                if (p.y >= potY && p.x >= potRect.left && p.x <= potRect.right) {
+                    spawnSplash(p.x, potY, p.color); liquidParticles.splice(i, 1);
+                } else if (p.y > lHeight) { liquidParticles.splice(i, 1); }
+            }
+
+            for (let i = splashParticles.length - 1; i >= 0; i--) {
+                let s = splashParticles[i];
+                s.x += s.vx; s.y += s.vy; s.vy += 0.2; s.life -= 0.05;
+                if (s.life <= 0) { splashParticles.splice(i, 1); continue; }
+                lCtx.beginPath(); lCtx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+                lCtx.fillStyle = s.color === 'red' ? '#ef4444' : s.color === 'green' ? '#22c55e' : '#3b82f6';
+                lCtx.globalAlpha = s.life; lCtx.fill(); lCtx.globalAlpha = 1;
+            }
+            requestAnimationFrame(animateLiquid);
+        }
+        animateLiquid();
+
+
+        // --- REST OF CONFIG ---
         const LocationNames = ["Подвал", "Гараж", "Завод", "Лаборатория", "Космос"];
         const Upgrades = {
             multitap: { baseCost: 100, costMultiplier: 2.0, powerBase: 1 },
@@ -512,20 +520,17 @@
         const MixRecipes = { "purple": ["red", "blue"], "yellow": ["red", "green"], "cyan": ["green", "blue"], "white": ["red", "green", "blue"] };
         const ColorNames = { "purple": {name: "ФИОЛЕТОВЫЙ", hex: "#a855f7"}, "yellow": {name: "ЖЕЛТЫЙ", hex: "#eab308"}, "cyan": {name: "БИРЮЗОВЫЙ", hex: "#06b6d4"}, "white": {name: "БЕЛЫЙ", hex: "#ffffff"} };
         
-        let currentMix = [];
-        let targetMix = "";
+        let currentMix = []; let targetMix = "";
         const tg = window.Telegram.WebApp;
 
         function initTelegram() { tg.expand(); tg.ready(); tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000'); }
-
         function loadGame() {
-            const saved = localStorage.getItem('neonLabSave_v19'); // Bump version for safety
+            const saved = localStorage.getItem('neonLabSave_v23'); 
             if (saved) { Object.assign(GameState, JSON.parse(saved)); } 
             else { GameState.lastSpinTime = 0; } 
             recalcMultiplier(); initSynthesis(); initDraggableFlasks(); updateUI();
         }
-        function saveGame() { GameState.lastSaveTime = Date.now(); localStorage.setItem('neonLabSave_v19', JSON.stringify(GameState)); }
-
+        function saveGame() { GameState.lastSaveTime = Date.now(); localStorage.setItem('neonLabSave_v23', JSON.stringify(GameState)); }
         function recalcMultiplier() {
             let mult = 1;
             if(GameState.items.blueCrystal) mult *= 2; if(GameState.items.darkMatter) mult *= 5;
@@ -536,7 +541,125 @@
             GameState.multiplier = mult;
         }
 
-        // --- CORE UI UPDATES ---
+        // --- SYNTHESIS LOGIC ---
+        function initSynthesis() {
+            const keys = Object.keys(MixRecipes); targetMix = keys[Math.floor(Math.random() * keys.length)];
+            const info = ColorNames[targetMix];
+            document.getElementById('targetColorName').innerText = info.name;
+            document.getElementById('targetColorName').style.color = info.hex;
+            document.getElementById('targetColorSample').style.backgroundColor = info.hex;
+            document.getElementById('targetColorSample').style.boxShadow = `0 0 20px ${info.hex}`;
+            currentMix = []; updateMixVisuals();
+        }
+
+        function initDraggableFlasks() {
+            const flasks = document.querySelectorAll('.draggable-flask');
+            const mixingPot = document.getElementById('mixingPot');
+            
+            flasks.forEach(flask => {
+                let startX, startY;
+                let isDragging = false;
+                let pourInterval;
+
+                const onStart = (e) => {
+                    if(Date.now() < GameState.synthesisCooldown || flask.classList.contains('pouring')) return;
+                    e.preventDefault();
+                    isDragging = true;
+                    flask.classList.add('dragging');
+                    const t = e.touches ? e.touches[0] : e;
+                    startX = t.clientX; startY = t.clientY;
+                };
+
+                const onMove = (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    const t = e.touches ? e.touches[0] : e;
+                    const dx = t.clientX - startX;
+                    const dy = t.clientY - startY;
+                    flask.style.transform = `translate(${dx}px, ${dy}px) scale(1.2)`;
+
+                    const rect1 = flask.getBoundingClientRect();
+                    const rect2 = mixingPot.getBoundingClientRect();
+                    if(isOverlapping(rect1, rect2)) {
+                        mixingPot.classList.add('receive-liquid');
+                        
+                        if(!flask.classList.contains('pouring')) {
+                            const color = flask.dataset.color;
+                            if(currentMix.length < 3 && !currentMix.includes(color)) {
+                                flask.classList.add('pouring'); 
+                                tg.HapticFeedback.impactOccurred('medium');
+                                
+                                let pouredAmount = 0;
+                                pourInterval = setInterval(() => {
+                                    const mouthRect = flask.querySelector('.flask-mouth').getBoundingClientRect();
+                                    spawnPourParticles(mouthRect.left, mouthRect.top, color);
+                                    
+                                    pouredAmount++;
+                                    if(pouredAmount > 30) {
+                                        clearInterval(pourInterval);
+                                        currentMix.push(color);
+                                        updateMixVisuals();
+                                        checkWin();
+                                    }
+                                }, 16); 
+                            }
+                        }
+                    } else {
+                        mixingPot.classList.remove('receive-liquid');
+                    }
+                };
+
+                const onEnd = () => {
+                    isDragging = false;
+                    flask.classList.remove('dragging');
+                    flask.classList.remove('pouring');
+                    flask.style.transform = ''; 
+                    mixingPot.classList.remove('receive-liquid');
+                    clearInterval(pourInterval);
+                };
+
+                flask.addEventListener('touchstart', onStart);
+                window.addEventListener('touchmove', onMove, {passive: false});
+                window.addEventListener('touchend', onEnd);
+                flask.addEventListener('mousedown', onStart);
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onEnd);
+            });
+        }
+
+        function checkWin() {
+            const recipe = MixRecipes[targetMix];
+            const s1 = [...currentMix].sort().join(','), s2 = [...recipe].sort().join(',');
+            if(s1===s2) {
+                GameState.boostEndTime = Date.now()+30000; GameState.synthesisCooldown = Date.now()+300000;
+                recalcMultiplier(); switchTab('upgrades'); showToast("СИНТЕЗ УСПЕШЕН!"); initSynthesis();
+            } else if(currentMix.length >= recipe.length) {
+                showToast("НЕСТАБИЛЬНО!"); setTimeout(resetMix, 500);
+            }
+        }
+
+        function isOverlapping(r1, r2) {
+            return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+        }
+
+        function updateMixVisuals() {
+            const liquid = document.getElementById('mixLiquid');
+            if(currentMix.length===0) {
+                liquid.style.fill="#111";
+                liquid.setAttribute('d', "M22,88 L78,88 L78,90 C78,92 68,93 50,93 C32,93 22,92 22,90 Z");
+            } else {
+                const map = {red:[255,0,0], green:[0,255,0], blue:[0,0,255]};
+                let r=0,g=0,b=0;
+                currentMix.forEach(c=>{ r+=map[c][0]; g+=map[c][1]; b+=map[c][2]; });
+                r/=currentMix.length; g/=currentMix.length; b/=currentMix.length;
+                liquid.style.fill = `rgb(${r},${g},${b})`;
+                const level = 88 - (currentMix.length * 15);
+                liquid.setAttribute('d', `M22,${level} L78,${level} L78,80 C78,88 68,93 50,93 C32,93 22,88 22,80 Z`);
+            }
+        }
+        function resetMix() { currentMix=[]; updateMixVisuals(); }
+
+        // --- CORE FUNCTIONS ---
         function updateUI() {
             document.getElementById('scoreDisplay').innerText = Math.floor(GameState.balance).toLocaleString();
             document.getElementById('energyText').innerText = Math.floor(GameState.energy) + "/" + GameState.maxEnergy;
@@ -552,20 +675,20 @@
             else if(isBoost) { boostTimer.classList.remove('hidden'); boostTimer.innerText = "БУСТ: " + Math.ceil((GameState.boostEndTime - Date.now())/1000) + "s"; }
             else { boostTimer.classList.add('hidden'); }
 
-            // Casino
             const diff = Date.now() - GameState.lastSpinTime;
             const spinBtn = document.getElementById('btnSpin');
             const spinTimer = document.getElementById('spinTimer');
-            if(diff >= 86400000) {
+            const COOLDOWN_MS = 10800000;
+            
+            if(diff >= COOLDOWN_MS) {
                 spinBtn.disabled = false; spinBtn.classList.remove('spin-cooldown'); spinBtn.classList.add('spin-ready'); spinBtn.innerText = "КРУТИТЬ"; spinTimer.classList.add('hidden');
             } else {
                 spinBtn.disabled = true; spinBtn.classList.remove('spin-ready'); spinBtn.classList.add('spin-cooldown'); spinBtn.innerText = "ЖДАТЬ"; spinTimer.classList.remove('hidden');
-                const left = 86400000 - diff;
+                const left = COOLDOWN_MS - diff;
                 const h = Math.floor(left/3600000), m = Math.floor((left%3600000)/60000), s = Math.floor((left%60000)/1000);
                 document.getElementById('spinTimeVal').innerText = `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
             }
 
-            // Synthesis Cooldown
             const cool = document.getElementById('synthesisCooldown');
             if(Date.now() < GameState.synthesisCooldown) {
                 cool.classList.remove('hidden');
@@ -574,7 +697,6 @@
                 document.getElementById('cooldownTimer').innerText = `${min}:${sec<10?'0'+sec:sec}`;
             } else { cool.classList.add('hidden'); }
 
-            // Costs
             const getCost = (t, l) => Math.floor(Upgrades[t].baseCost * Math.pow(Upgrades[t].costMultiplier, l-1));
             document.getElementById('costMultitap').innerText = getCost('multitap', GameState.multitapLevel);
             document.getElementById('lvlMultitap').innerText = GameState.multitapLevel;
@@ -589,7 +711,6 @@
             else { document.getElementById('costLocation').innerText = getCost('location', GameState.locationLevel+1); document.getElementById('nextLocName').innerText = LocationNames[GameState.locationLevel+1]; }
             document.getElementById('levelDisplay').innerText = LocationNames[GameState.locationLevel];
 
-            // Items
             ['Isotope','Crystal','DarkMatter'].forEach(id => {
                 const key = id === 'Isotope' ? 'unstableIsotope' : id === 'Crystal' ? 'blueCrystal' : 'darkMatter';
                 if(GameState.items[key]) {
@@ -600,206 +721,12 @@
             });
         }
 
-        // --- SMUGGLER ---
-        function checkSmuggler() {
-            const now = Date.now();
-            if (!GameState.smuggler.active && now > GameState.smuggler.nextArrival) {
-                GameState.smuggler.active = true; GameState.smuggler.departTime = now + 30000;
-                showToast("ТОРГОВЕЦ ПРИБЫЛ!");
-            }
-            if (GameState.smuggler.active && now > GameState.smuggler.departTime) {
-                GameState.smuggler.active = false; GameState.smuggler.nextArrival = now + 180000;
-                closeSmuggler();
-            }
-            const btn = document.getElementById('smugglerBtn');
-            if(GameState.smuggler.active) {
-                btn.classList.remove('hidden');
-                document.getElementById('smugglerTimerDisplay').innerText = Math.ceil((GameState.smuggler.departTime - now)/1000) + 's';
-                document.getElementById('smugglerModalTimer').innerText = Math.ceil((GameState.smuggler.departTime - now)/1000) + 's';
-            } else { btn.classList.add('hidden'); }
-        }
-        function openSmuggler() { document.getElementById('smugglerModal').classList.remove('hidden'); }
-        function closeSmuggler() { document.getElementById('smugglerModal').classList.add('hidden'); }
-        function buyLegendary(type) {
-            let cost = (type==='hulkSerum')?50000:(type==='timeLoop')?100000:1000000;
-            if(GameState.balance >= cost) {
-                GameState.balance -= cost;
-                if(type==='hulkSerum') { GameState.hulkEndTime = Date.now()+60000; showToast("СИЛА ХАЛКА!"); }
-                if(type==='timeLoop') { GameState.balance += Math.max(10000, (GameState.autobotLevel * Upgrades.autobot.powerBase * GameState.multiplier)*14400); showToast("ВРЕМЯ ПЕРЕМОТАНО!"); }
-                if(type==='unicornTear') { GameState.permMultiplier *= 5; showToast("ВЕЧНЫЙ БУСТ!"); }
-                recalcMultiplier(); closeSmuggler();
-            } else { showToast("НЕ ХВАТАЕТ!"); }
-        }
-
-        // --- CLICKER ---
-        const clickTarget = document.getElementById('clickTarget');
-        clickTarget.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (GameState.energy >= 1) {
-                let power = GameState.multitapLevel * GameState.multiplier;
-                let isCrit = false;
-                if(GameState.items.unstableIsotope && Math.random()<0.1) { isCrit=true; power*=5; tg.HapticFeedback.notificationOccurred('warning'); }
-                else tg.HapticFeedback.impactOccurred('medium');
-                
-                GameState.balance += power; GameState.energy -= 1;
-                createFloatingText(e.clientX, e.clientY, `+${Math.floor(power)}`, isCrit);
-                
-                // Visuals
-                clickTarget.style.transform = `scale(0.95) rotate(${Math.random()*10-5}deg)`;
-                setTimeout(()=>clickTarget.style.transform = 'scale(1)', 50);
-                
-                // Color shift based on state
-                const flask = document.getElementById('clickTarget');
-                if(Date.now() < GameState.hulkEndTime) flask.style.color = '#a855f7';
-                else if(Date.now() < GameState.boostEndTime) flask.style.color = '#ef4444';
-                else flask.style.color = '#22c55e';
-            } else {
-                tg.HapticFeedback.notificationOccurred('error');
-            }
-            updateUI();
-        });
-
-        function createFloatingText(x, y, txt, crit) {
-            const el = document.createElement('div');
-            el.className = 'floating-text' + (crit ? ' crit-text' : '');
-            el.innerText = txt;
-            el.style.left = x + 'px'; el.style.top = y + 'px';
-            document.body.appendChild(el);
-            setTimeout(()=>el.remove(), 800);
-        }
-
-        // --- CASINO ---
-        function spinRoulette() {
-            if(Date.now() - GameState.lastSpinTime < 86400000) return;
-            document.getElementById('btnSpin').disabled = true;
-            const wheel = document.getElementById('rouletteWheel');
-            const deg = 1800 + Math.random()*360;
-            wheel.style.transition = "transform 4s ease-out";
-            wheel.style.transform = `rotate(${deg}deg)`;
-            setTimeout(() => {
-                const seg = Math.floor(((deg % 360)) / 60); // Roughly
-                let prize = 0; let msg = "";
-                // Simple random prize logic for simplicity
-                const r = Math.random();
-                if(r<0.5) { prize=1000; msg="1,000 мг"; }
-                else if(r<0.8) { prize=5000; msg="5,000 мг"; }
-                else if(r<0.95) { prize=10000; msg="10,000 мг"; }
-                else { prize=50000; msg="ДЖЕКПОТ 50K!"; }
-                
-                GameState.balance += prize;
-                GameState.lastSpinTime = Date.now();
-                showToast("ВЫИГРЫШ: " + msg);
-                updateUI();
-            }, 4000);
-        }
-        function openCase(type) {
-            let cost = type==='basic'?2000:20000;
-            if(GameState.balance < cost) { showToast("НЕТ ДЕНЕГ!"); return; }
-            GameState.balance -= cost;
-            const btn = document.getElementById(type==='basic'?'caseBasic':'caseNeon');
-            btn.classList.add('shake-box');
-            setTimeout(() => {
-                btn.classList.remove('shake-box');
-                let prize = Math.floor(cost * (0.5 + Math.random()));
-                if(Math.random()>0.7) prize *= 2;
-                GameState.balance += prize;
-                showToast(`ПРИЗ: ${prize.toLocaleString()} мг`);
-                updateUI();
-            }, 500);
-        }
-
-        // --- SYNTHESIS MINIGAME ---
-        function initSynthesis() {
-            const keys = Object.keys(MixRecipes);
-            targetMix = keys[Math.floor(Math.random() * keys.length)];
-            const info = ColorNames[targetMix];
-            document.getElementById('targetColorName').innerText = info.name;
-            document.getElementById('targetColorName').style.color = info.hex;
-            document.getElementById('targetColorSample').style.backgroundColor = info.hex;
-            document.getElementById('targetColorSample').style.boxShadow = `0 0 20px ${info.hex}`;
-            currentMix = [];
-            updateMixVisuals();
-        }
-        function initDraggableFlasks() {
-            const flasks = document.querySelectorAll('.draggable-flask');
-            const mixingPot = document.getElementById('mixingPot');
-            flasks.forEach(f => {
-                const handleStart = (e) => {
-                    if(Date.now() < GameState.synthesisCooldown || f.classList.contains('pouring')) return;
-                    e.preventDefault(); f.classList.add('dragging');
-                };
-                const handleMove = (e) => {
-                    if(!f.classList.contains('dragging')) return;
-                    e.preventDefault();
-                    const touch = e.touches ? e.touches[0] : e;
-                    f.style.transform = `translate(${touch.clientX - f.getBoundingClientRect().left - 20}px, ${touch.clientY - f.getBoundingClientRect().top - 40}px) scale(1.3)`;
-                    const rect1 = f.getBoundingClientRect();
-                    const rect2 = mixingPot.getBoundingClientRect();
-                    if(rect1.bottom > rect2.top && rect1.top < rect2.bottom && rect1.right > rect2.left && rect1.left < rect2.right) mixingPot.classList.add('receive-liquid');
-                    else mixingPot.classList.remove('receive-liquid');
-                };
-                const handleEnd = (e) => {
-                    if(!f.classList.contains('dragging')) return;
-                    f.classList.remove('dragging');
-                    mixingPot.classList.remove('receive-liquid');
-                    const rect1 = f.getBoundingClientRect();
-                    const rect2 = mixingPot.getBoundingClientRect();
-                    if(rect1.bottom > rect2.top && rect1.top < rect2.bottom && rect1.right > rect2.left && rect1.left < rect2.right) {
-                        const color = f.dataset.color;
-                        if(currentMix.length < 3 && !currentMix.includes(color)) {
-                            f.classList.add('pouring');
-                            const stream = f.querySelector('.pour-stream');
-                            stream.style.height = '60px'; 
-                            setTimeout(() => {
-                                stream.style.height = '0';
-                                setTimeout(() => {
-                                    f.classList.remove('pouring');
-                                    f.style.transform = '';
-                                    currentMix.push(color); updateMixVisuals();
-                                    const recipe = MixRecipes[targetMix];
-                                    const s1 = [...currentMix].sort().join(','), s2 = [...recipe].sort().join(',');
-                                    if(s1===s2) {
-                                        GameState.boostEndTime = Date.now()+30000; GameState.synthesisCooldown = Date.now()+300000;
-                                        recalcMultiplier(); switchTab('upgrades'); showToast("СИНТЕЗ УСПЕШЕН!"); initSynthesis();
-                                    } else if(currentMix.length >= recipe.length) {
-                                        showToast("ОШИБКА!"); setTimeout(()=>{ currentMix=[]; updateMixVisuals(); }, 500);
-                                    }
-                                }, 200);
-                            }, 400); 
-                        } else f.style.transform = '';
-                    } else f.style.transform = '';
-                };
-
-                f.addEventListener('touchstart', handleStart, {passive:false});
-                f.addEventListener('touchmove', handleMove, {passive:false});
-                f.addEventListener('touchend', handleEnd);
-                f.addEventListener('mousedown', handleStart);
-                window.addEventListener('mousemove', handleMove);
-                window.addEventListener('mouseup', handleEnd);
-            });
-        }
-        function updateMixVisuals() {
-            const liquid = document.getElementById('mixLiquid');
-            if(currentMix.length===0) liquid.style.fill="#111";
-            else {
-                // Simple color avg
-                const map = {red:[255,0,0], green:[0,255,0], blue:[0,0,255]};
-                let r=0,g=0,b=0;
-                currentMix.forEach(c=>{ r+=map[c][0]; g+=map[c][1]; b+=map[c][2]; });
-                r/=currentMix.length; g/=currentMix.length; b/=currentMix.length;
-                liquid.style.fill = `rgb(${r},${g},${b})`;
-            }
-        }
-        function resetMix() { currentMix=[]; updateMixVisuals(); }
-
-        // --- ADMIN ---
         let ac=0, at;
         document.getElementById('secretAdminBtn').addEventListener('click', ()=>{
             ac++; clearTimeout(at); at=setTimeout(()=>{ac=0},1000);
             if(ac>=10) { GameState.balance+=1000000000; GameState.lastSpinTime=0; GameState.smuggler.nextArrival=Date.now(); saveGame(); updateUI(); showToast("ADMIN GOD MODE"); ac=0;}
         });
 
-        // --- UTILS ---
         function buyUpgrade(t) {
             if(t==='location' && GameState.locationLevel>=4) return;
             let lvl = (t==='multitap'?GameState.multitapLevel:t==='energy'?GameState.energyLevel:t==='recharge'?GameState.rechargeLevel:t==='autobot'?GameState.autobotLevel+1:GameState.locationLevel+1);
@@ -814,12 +741,16 @@
                 recalcMultiplier(); saveGame(); updateUI();
             } else showToast("НЕТ ДЕНЕГ");
         }
-        function buyItem(k) {
-            if(GameState.items[k]) return;
-            if(GameState.balance >= SpecialItems[k].cost) {
-                GameState.balance -= SpecialItems[k].cost;
-                GameState.items[k] = true; recalcMultiplier(); saveGame(); updateUI();
-            }
+        function buyItem(k) { if(GameState.items[k]) return; if(GameState.balance >= SpecialItems[k].cost) { GameState.balance -= SpecialItems[k].cost; GameState.items[k] = true; recalcMultiplier(); saveGame(); updateUI(); } }
+        function buyLegendary(t) {
+            let cost = (t==='hulkSerum')?50000:(t==='timeLoop')?100000:1000000;
+            if(GameState.balance >= cost) {
+                GameState.balance -= cost;
+                if(t==='hulkSerum') GameState.hulkEndTime = Date.now()+60000; 
+                if(t==='timeLoop') GameState.balance += Math.max(10000, (GameState.autobotLevel * Upgrades.autobot.powerBase * GameState.multiplier)*14400); 
+                if(t==='unicornTear') GameState.permMultiplier *= 5; 
+                recalcMultiplier(); closeSmuggler();
+            } else showToast("НЕ ХВАТАЕТ!");
         }
         function showToast(m) {
             const t=document.getElementById('toast'); t.innerText=m; t.style.opacity=1; t.style.transform='translate(-50%,0) scale(1)';
@@ -833,8 +764,146 @@
                 else { b.classList.add('tab-inactive'); b.classList.remove('tab-active'); c.classList.add('hidden'); }
             });
         }
+        function checkSmuggler() {
+            const now = Date.now();
+            if (!GameState.smuggler.active && now > GameState.smuggler.nextArrival) { GameState.smuggler.active = true; GameState.smuggler.departTime = now + 30000; showToast("ТОРГОВЕЦ!"); }
+            if (GameState.smuggler.active && now > GameState.smuggler.departTime) { GameState.smuggler.active = false; GameState.smuggler.nextArrival = now + 180000; closeSmuggler(); }
+            const btn = document.getElementById('smugglerBtn');
+            if(GameState.smuggler.active) { btn.classList.remove('hidden'); document.getElementById('smugglerTimerDisplay').innerText = Math.ceil((GameState.smuggler.departTime - now)/1000) + 's'; document.getElementById('smugglerModalTimer').innerText = Math.ceil((GameState.smuggler.departTime - now)/1000) + 's'; } else { btn.classList.add('hidden'); }
+        }
+        function openSmuggler() { document.getElementById('smugglerModal').classList.remove('hidden'); }
+        function closeSmuggler() { document.getElementById('smugglerModal').classList.add('hidden'); }
+        function spinRoulette() {
+            const COOLDOWN_MS = 10800000;
+            if(Date.now() - GameState.lastSpinTime < COOLDOWN_MS) return;
+            document.getElementById('btnSpin').disabled = true;
+            const wheel = document.getElementById('rouletteWheel');
+            const deg = 1800 + Math.random()*360;
+            wheel.style.transition = "transform 4s ease-out"; wheel.style.transform = `rotate(${deg}deg)`;
+            setTimeout(() => {
+                const r = Math.random(); let prize = 0; let msg = "";
+                if(r<0.5) { prize=1000; msg="1,000 мг"; } else if(r<0.8) { prize=5000; msg="5,000 мг"; } else if(r<0.95) { prize=10000; msg="10,000 мг"; } else { prize=50000; msg="ДЖЕКПОТ!"; }
+                GameState.balance += prize; GameState.lastSpinTime = Date.now(); showToast(msg); updateUI();
+            }, 4000);
+        }
+        
+        // --- CASE OPENING LOGIC ---
+        function generateReel(type) {
+            const reel = document.getElementById('caseReel');
+            reel.innerHTML = '';
+            
+            let items = [];
+            // Probabilities: Common 60%, Uncommon 25%, Rare 10%, Epic 4%, Legendary 1%
+            // But influenced by Case Type
+            let baseChance = type === 'basic' ? 0 : 20; // Bonus shift for expensive case
 
-        // Loop
+            for(let i=0; i<60; i++) { // Generate 60 items
+                let rand = Math.random() * 100 + baseChance;
+                let rarity, val, className;
+                
+                if (rand < 50) { rarity="Common"; val=Math.floor(Math.random()*500+100); className="rarity-common"; }
+                else if (rand < 80) { rarity="Uncommon"; val=Math.floor(Math.random()*1000+500); className="rarity-uncommon"; }
+                else if (rand < 92) { rarity="Rare"; val=Math.floor(Math.random()*3000+1500); className="rarity-rare"; }
+                else if (rand < 98) { rarity="Epic"; val=Math.floor(Math.random()*10000+5000); className="rarity-epic"; }
+                else { rarity="Legendary"; val=Math.floor(Math.random()*50000+20000); className="rarity-legendary"; }
+
+                // Determine winner at index 45
+                if(i === 45) {
+                    items.push({val, className, winner: true});
+                } else {
+                    items.push({val, className, winner: false});
+                }
+            }
+            
+            // Build DOM
+            items.forEach(item => {
+                const el = document.createElement('div');
+                el.className = `case-item ${item.className}`;
+                el.innerHTML = `<span class="text-xs text-gray-400 mb-1">МГ</span><span class="font-bold text-white text-lg">${item.val}</span>`;
+                if(item.winner) el.id = 'winnerItem';
+                reel.appendChild(el);
+            });
+
+            return items[45]; // Return winning object
+        }
+
+        function openCase(type) {
+            let cost = type==='basic'?2000:20000;
+            if(GameState.balance < cost) { showToast("НЕТ ДЕНЕГ!"); return; }
+            GameState.balance -= cost;
+            updateUI(); // Immediate deduct
+
+            // Prep
+            const winItem = generateReel(type);
+            const modal = document.getElementById('caseModal');
+            modal.classList.remove('hidden');
+            const reel = document.getElementById('caseReel');
+            
+            // Reset position
+            reel.style.transition = 'none';
+            reel.style.transform = 'translateX(0px)';
+            
+            // Trigger reflow
+            void reel.offsetWidth;
+
+            // Animate
+            // Item width 100px + 10px margin = 110px. 
+            // Winner is at index 45. 
+            // We want index 45 to be centered. 
+            // Center of window (width?) - (45 * 110 + 55).
+            // Assuming window width ~350px. Center is 175.
+            // Target X = 175 - (45 * 110 + 50) = 175 - 5000 = -4825 (approx)
+            // Add some randomness within the card width (+/- 40px)
+            const randomOffset = Math.floor(Math.random() * 80) - 40;
+            // - (45 items * 110px width) + (container center offset ~ half container width)
+            const scrollDist = -(45 * 110) + 150 + randomOffset; 
+
+            setTimeout(() => {
+                reel.style.transition = 'transform 5s cubic-bezier(0.15, 0, 0.2, 1)'; // Ease-out spin
+                reel.style.transform = `translateX(${scrollDist}px)`;
+                
+                // Sound effect loop? (Vibration)
+                let vibrateInterval = setInterval(() => {
+                    tg.HapticFeedback.selectionChanged();
+                }, 100);
+                // Slow down vibration
+                setTimeout(() => { clearInterval(vibrateInterval); vibrateInterval = setInterval(()=>tg.HapticFeedback.selectionChanged(), 200); }, 3000);
+                setTimeout(() => { clearInterval(vibrateInterval); vibrateInterval = setInterval(()=>tg.HapticFeedback.selectionChanged(), 400); }, 4000);
+                
+                setTimeout(() => {
+                    clearInterval(vibrateInterval);
+                    tg.HapticFeedback.notificationOccurred('success');
+                    document.getElementById('caseStatus').innerText = `ВЫИГРЫШ: ${winItem.val}`;
+                    GameState.balance += winItem.val;
+                    saveGame();
+                    updateUI();
+                    
+                    // Close delay
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        document.getElementById('caseStatus').innerText = "КРУТИМ...";
+                    }, 2000);
+                }, 5000);
+            }, 100);
+        }
+
+        const clickTarget = document.getElementById('clickTarget');
+        clickTarget.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            if (GameState.energy >= 1) {
+                let power = GameState.multitapLevel * GameState.multiplier;
+                let isCrit = false;
+                if(GameState.items.unstableIsotope && Math.random()<0.1) { isCrit=true; power*=5; tg.HapticFeedback.notificationOccurred('warning'); }
+                else tg.HapticFeedback.impactOccurred('medium');
+                GameState.balance += power; GameState.energy -= 1;
+                const el = document.createElement('div'); el.className = 'floating-text' + (isCrit ? ' crit-text' : ''); el.innerText = `+${Math.floor(power)}`; el.style.left = e.clientX+'px'; el.style.top = e.clientY+'px'; document.body.appendChild(el); setTimeout(()=>el.remove(), 800);
+                clickTarget.style.transform = `scale(0.95) rotate(${Math.random()*10-5}deg)`; setTimeout(()=>clickTarget.style.transform = 'scale(1)', 50);
+                const flask = document.getElementById('clickTarget');
+                if(Date.now() < GameState.hulkEndTime) flask.style.color = '#a855f7'; else if(Date.now() < GameState.boostEndTime) flask.style.color = '#ef4444'; else flask.style.color = '#22c55e';
+            } else tg.HapticFeedback.notificationOccurred('error');
+            updateUI();
+        });
+
         setInterval(()=>{
             if(GameState.energy<GameState.maxEnergy) GameState.energy = Math.min(GameState.maxEnergy, GameState.energy+GameState.energyRechargeRate);
             if(GameState.autobotLevel>0) GameState.balance += GameState.autobotLevel * Upgrades.autobot.powerBase * GameState.multiplier;
